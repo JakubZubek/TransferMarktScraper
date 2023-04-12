@@ -32,6 +32,7 @@ def parse_club(league):
 def parse_footballer(club):
         for footballer in (club.find_all('td', class_="hauptlink")):
             if "profil" in footballer.a.get("href"):
+                
                 footballer_url = footballer.a.get("href")
                 footballer_url = "https://www.transfermarkt.com" + footballer_url
                 footballer_page = requests.get(footballer_url, headers=headers)
@@ -39,10 +40,35 @@ def parse_footballer(club):
                 footballer_name = footballer_soup.find('h1', class_="data-header__headline-wrapper").text
                 footballer_positions = [data.text for data in footballer_soup.find_all('dd', class_="detail-position__position")]
                 value = footballer_soup.find('div', class_="tm-player-market-value-development__current-value").text
-                footballer_details = [data.text for data in footballer_soup.find_all('span', class_="info-table__content info-table__content--bold")]
-                #print (footballer_details, footballer_positions, value)
-                print(footballer_name)
+                footballer_details = [data.text for data in footballer_soup.find_all('li', class_="data-header__label")]
+                footballer_info_pack = [clearance(footballer_name), footballer_positions, list_clearance(footballer_details), value]
+                footballer_info_pack = [list_clearance(footballer_details)]
+                footballer_info_pack.append(clearance(footballer_name))
+                footballer_info_pack.append(value)
+                footballer_info_pack.append(footballer_positions)
+                result = [item for sublist in footballer_info_pack for item in sublist]
+                print (footballer_info_pack)
+
+
+
+
+
+
+
                 break
+
+def list_clearance(data_list):
+    clean_list = []
+    for data in data_list:
+        if "Agent" not in data:
+            clean_list.append(clearance(data))
+    return clean_list
+
+
+def clearance(data):
+    result = data.replace("\n", "")
+    result = result.replace("  ", "")
+    return result
 
 
 
