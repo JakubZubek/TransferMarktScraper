@@ -59,7 +59,7 @@ def parse_player(club):
                     player_info_dict["Name"] = player_name
                     player_info_dict["Value in millions"] = player_value
                     player_info_dict["Club"] = club_name
-                    player_info_dict["Leauge"] = league_name
+                    player_info_dict["League"] = league_name
                     players.append(player_info_dict)
             except:
                 pass
