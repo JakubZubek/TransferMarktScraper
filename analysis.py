@@ -1,7 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tick
-from matplotlib.axis import Axis
 
 
 def calulate_percentage(a, b):
@@ -14,20 +13,34 @@ def addlabels(x, y):
         plt.text(i, y[i]//2, y[i], ha='center')
 
 
-def bar(x, y, league_name, league_percentage):
+def bar(dict, league_name, league_average, scale):
+    x = dict.keys()
+    y = list(dict.values())
     x = [name.replace(" ", "\n") for name in x]
     fig = plt.figure(figsize=(15, 10))
-    plt.gca().yaxis.set_major_formatter(tick.PercentFormatter())
+
     plt.bar(x, y, label="Team average")
-    addlabels(x, y)
-    plt.axhline(y=league_percentage, color='r',
+
+    plt.axhline(y=league_average, color='r',
                 linestyle='-', label="League average")
-    plt.text(-1.2, league_percentage+0.4, league_percentage)
-    plt.title(league_name + " percentage of domestic players")
-    plt.yticks([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
+
+    if scale == "a":
+        addlabels(x, y)
+        plt.text(-1.2, league_average+0.4, league_average)
+        plt.gca().yaxis.set_major_formatter(tick.PercentFormatter())
+        plt.yticks([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
+        plt.title(league_name + " percentage of domestic players")
+    elif scale == "b":
+        plt.text(0, league_average, league_average)
+        plt.yticks([1.76, 1.78, 1.8, 1.82, 1.84, 1.86, 1.88, 1.9])
+        plt.ylim([1.76, 1.9])
+        plt.title(league_name + " average height")
+    elif scale == "c":
+        plt.text(-1.2, league_average+0.4, league_average)
     plt.xticks(rotation=75)
     plt.legend(loc='best')
-    plt.savefig(league_name + ".png", dpi=fig.dpi)
+    plt.show()
+    #plt.savefig(league_name + ".png", dpi=fig.dpi)
 
 
 country_league_dict = {"Serie A": "Italy",
@@ -39,23 +52,30 @@ country_league_dict = {"Serie A": "Italy",
 
 df = pd.read_csv('Players.csv')
 for league, country in country_league_dict.items():
-    percentages = []
-    names = []
+    domestic_percent = {}
+    height = {}
+    value = {}
     one_league_df = (df[df["League"] == league])
     all_players = one_league_df.shape[0]
-    homegrown_players = (df[(df["League"] == league) & (
+    domesitc_players = (df[(df["League"] == league) & (
         df["Citizenship"] == country)]).shape[0]
-    league_percentage = calulate_percentage(homegrown_players, all_players)
+    league_domestic_procent = calulate_percentage(
+        domesitc_players, all_players)
     clubs_in_league = one_league_df["Club"].unique()
-
+    league_height = one_league_df["Height"].mean()
+    league_value = one_league_df["Value in million"].mean()
     for club in clubs_in_league:
         one_club_df = one_league_df[one_league_df["Club"] == club]
+
+        height[club] = one_club_df["Height"].mean()
+        value[club] = one_club_df["Value in million"].mean()
         club_players = one_club_df.shape[0]
-        club_homegrown_players = (one_league_df[(one_league_df["Club"] == club) & (
+        club_domestic_players = (one_league_df[(one_league_df["Club"] == club) & (
             one_league_df["Citizenship"] == country)]).shape[0]
         club_percentage = calulate_percentage(
-            club_homegrown_players, club_players)
-        percentages.append(club_percentage)
-        names.append(club)
-    league_percentage = (league_percentage)
-    bar(names, percentages, league, league_percentage)
+            club_domestic_players, club_players)
+        domestic_percent[club] = club_percentage
+    bar(domestic_percent, league, league_domestic_procent, "a")
+    bar(height, league, league_height, "b")
+    bar(value, league, league_value, "c")
+    break
