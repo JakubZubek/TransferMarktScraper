@@ -13,7 +13,6 @@ list_of_league_urls = [
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
 
-
 players = []
 
 def parse_leauge():
@@ -29,7 +28,6 @@ def parse_club(league):
         club_page = requests.get(club_url, headers=headers)
         club_soup = BeautifulSoup(club_page.content, 'html.parser')
         parse_player(club_soup)
-        break
 
 def parse_player(club):
         for player in (club.find_all('td', class_="hauptlink")):
@@ -63,12 +61,10 @@ def parse_player(club):
                     players.append(player_info_dict)
             except:
                 pass
-            break
 
 def create_df_and_save_to_csv(data):
     df = pd.DataFrame(data)
     clean_df = clean.clean_after_parse(df)
     clean_df.to_csv("Players.csv", index=False)
-
 
 create_df_and_save_to_csv(parse_leauge())
