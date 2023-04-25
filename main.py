@@ -67,7 +67,8 @@ def parse_player(club):
 
 def create_df_and_save_to_csv(data):
     df = pd.DataFrame(data)
-    df.to_csv("Players.csv", index=False)
+    clean_df = clean.clean_after_parse(df)
+    clean_df.to_csv("Players.csv", index=False)
 
 
 create_df_and_save_to_csv(parse_leauge())
